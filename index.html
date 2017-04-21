@@ -241,6 +241,202 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/21/router/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="shsoul">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/gang.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="shsoul'blog">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="shsoul'blog" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/04/21/router/" itemprop="url">
+                  如何实现一套iOS-router
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-04-21T19:20:04+08:00">
+                2017-04-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/IOS/" itemprop="url" rel="index">
+                    <span itemprop="name">IOS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/04/21/router/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/21/router/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="router是什么？"><a href="#router是什么？" class="headerlink" title="router是什么？"></a>router是什么？</h3><p>简单的说，router就是用url跟一些操作绑定，我们可以通过我们设定的url，执行设定的操作，如打开某个页面。看图：</p>
+<p><img src="https://p0.meituan.net/dpnewvc/e4c8706c48fdac66aff949f38b599a0015251.png" alt=""></p>
+<h3 id="为什么要router？"><a href="#为什么要router？" class="headerlink" title="为什么要router？"></a>为什么要router？</h3><p>随着我们的项目越来越大，界面越来越多，逻辑越来越复杂。界面间的路由也变得越来越臃肿，耦合越来越大。我们需要一套框架来解决和简化这些问题。也就是说我们需要router。router主要作用：</p>
+<ol>
+<li>解耦界面间的越来越复杂的依赖关系。</li>
+<li>统一接口.</li>
+<li>实现router拦截器。集中处理需要拦截的需求，如登录拦截。也方便埋点。</li>
+<li>方便和其他app的通信，方便处理web跳转到app的逻辑。</li>
+</ol>
+<p>举个例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">//使用router前，这里必须在Viewcontroller调用。</div><div class="line"></div><div class="line">UIViewController *main = [[UIViewController alloc] initWithxxx:(id)xxx];</div><div class="line">[self.navigationController pushViewController:main animated:YES];</div><div class="line"></div><div class="line">使用router后，这里可以任何地方调用。</div><div class="line"></div><div class="line">Router.router.build(&quot;/main&quot;).withAnimated(YES).withObject(@&quot;key&quot;, value).navigate();</div></pre></td></tr></table></figure>
+<h3 id="如何实现router"><a href="#如何实现router" class="headerlink" title="如何实现router"></a>如何实现router</h3><ol>
+<li><p>明确我们需要做什么。</p>
+<ul>
+<li>我们需要一个register来注册我们的类，如ViewController。绑定url和类。</li>
+<li>我们需要一个router来处理我们所有的路由逻辑。因此要定义好router的接口。</li>
+<li>我们需要拦截器。因此要定义好拦截器接口。</li>
+<li>我们需要至少支持push和present两种模式。</li>
+</ul>
+</li>
+<li><p>实现方案</p>
+</li>
+</ol>
+<p><img src="https://p0.meituan.net/dpnewvc/c501389026c246735b894934a7cf436a10727.png" alt=""></p>
+<ul>
+<li>在register模块上，保存url和类的映射关系。并保存所有的拦截器。</li>
+<li><p>在router模块</p>
+<ul>
+<li>由于有两种模式，因此得有两个方法调用present和push（个人感觉navigate更合适，因为可以往前或往后导航）</li>
+<li>由于可以前后导航，因此得自定义的vc类中，得定义两个接口，init和update。</li>
+<li>维护路由堆栈，加入新的用init，导航到堆栈中存在的就调update。</li>
+</ul>
+</li>
+<li>在跳转之前，调用所有的拦截器，根据拦截器返回的结果再做真正的跳转操作。</li>
+<li>用的是字典传参。</li>
+<li>由于用的是字典传参，最好加入依赖注入方案。</li>
+</ul>
+<h3 id="先假想使用router，再思考封装router。"><a href="#先假想使用router，再思考封装router。" class="headerlink" title="先假想使用router，再思考封装router。"></a>先假想使用router，再思考封装router。</h3><p>在上面的方案中，我们已经定义好了我们的router中的一些内容，大概构思了一个方案。我们先想想如果我们已经有了一套router，我们该怎么使用才满足我们的需求还有体验。（我的想法）</p>
+<ol>
+<li>首先我们自定义一个vc，实现init和update协议。有依赖注入肯定最好，直接调用注入的方法，不用逐一赋值。</li>
+<li>在register模块上注册我们的vc。有拦截器加拦截器。</li>
+<li>最后调用router相应的方法传参和跳转到我们定义的vc吧。为了更好的使用体验(参数的不确定)，用builder模式好一点。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Router.router.build(&quot;/main&quot;).withAnimated(YES).withObject(@&quot;key&quot;, value).navigate();</div><div class="line"></div><div class="line">Router.router.build(&quot;/login&quot;).withAnimated(YES).withObject(@&quot;key&quot;, value).present();</div></pre></td></tr></table></figure>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p> 以上是我对router的一些想法，也按照这个想法实现了一套router。再也不用关注路由的关系了，只需关注本身页面的构造。达到解耦的效果。特别在嵌套很深的界面中，路由可直接在操作中进行，再也不用回调到外面的controller进行跳转。总的来说，效果不错。</p>
+<p> <img src="https://p0.meituan.net/dpnewvc/e4c8706c48fdac66aff949f38b599a0015251.png" alt=""></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/03/我是如何实现IOS原生弹窗效果的/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -357,15 +553,16 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">DialogViewController *dialog = [[DialogViewController alloc] init];</div><div class="line">dialog.modalPresentationStyle = UIModalPresentationOverFullScreen;    </div><div class="line">self.definesPresentationContext = YES;</div><div class="line">[self presentViewController:dialog animated:NO completion:nil];</div></pre></td></tr></table></figure>
 <h2 id="步骤2"><a href="#步骤2" class="headerlink" title="步骤2"></a>步骤2</h2><p>添加弹窗动画:透明度渐变和缩放,这里用到了spring动画。需要注意的是在viewWillAppear或者viewDidAppear里面调用弹窗动画，不然看不到动画效果。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">- (void)viewDidLoad &#123;</div><div class="line">	_contentView.transform = CGAffineTransformMakeScale(2, 2);</div><div class="line">    _contentView.alpha = 0;</div><div class="line">&#125;</div><div class="line">- (void)viewDidAppear:(BOOL)animated &#123;</div><div class="line">    [super viewDidAppear:animated];</div><div class="line">    [self show];</div><div class="line">&#125;</div><div class="line">- (void)show &#123;</div><div class="line">    CGFloat dTime = 0.35;</div><div class="line">    [UIView animateWithDuration:dTime animations:^&#123;</div><div class="line">        self.contentView.alpha = 1;</div><div class="line">    &#125;];</div><div class="line">    </div><div class="line">    [UIView animateWithDuration:dTime delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:10 options:UIViewAnimationOptionCurveEaseIn animations:^&#123;</div><div class="line">        self.contentView.transform = CGAffineTransformMakeScale(1, 1);</div><div class="line">    &#125; completion:^(BOOL finished) &#123;</div><div class="line">        [self animateDidCompletion];</div><div class="line">    &#125;];</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<video width="300" src="/images/dialog.mov" controls></video>
+<video width="300" src="https://p0.meituan.net/dpnewvc/8f7e51d2071255106925286cf402630b684961.mov" controls></video>
 
 <h2 id="步骤3"><a href="#步骤3" class="headerlink" title="步骤3"></a>步骤3</h2><p>添加毛玻璃（模糊）效果,IOS8后用这种方式实现毛玻璃效果。非常方便。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">UIBlurEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];</div><div class="line">_effectView = [[UIVisualEffectView alloc] initWithEffect:effect];</div><div class="line">_effectView.layer.cornerRadius = 12;</div><div class="line">_effectView.clipsToBounds = YES;</div><div class="line">[self.contentView addSubview:_effectView];</div></pre></td></tr></table></figure>
-<p><img width="300" src="/images/dialog_dark.png"></p>
-<p>但是这块毛玻璃也太暗了，而用<code>UIBlurEffectStyleExtraLight</code>后，毛玻璃又不明显。怎么办？<br><img width="300" src="/images/dialog_light.png"></p>
+<p><img width="300" src="https://p0.meituan.net/dpnewvc/ede0c61f2c269eee769e3c618b49efd686526.png"></p>
+<p>但是这块毛玻璃也太暗了，而用<code>UIBlurEffectStyleExtraLight</code>后，毛玻璃又不明显。怎么办？</p>
+<p><img width="300" src="https://p0.meituan.net/dpnewvc/747b880915a92b39422cebb0bb9df1d979091.png"></p>
 <h2 id="步骤4"><a href="#步骤4" class="headerlink" title="步骤4"></a>步骤4</h2><p>UIBezierPath+CAShapeLayer来挖洞。毛玻璃太暗的原因是受到背景颜色（灰色）的影响。因此在弹窗的View背后挖一个一样大小的洞来解决。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">- (void)animateDidCompletion &#123;</div><div class="line">    UIBezierPath *cPath = [UIBezierPath bezierPathWithRoundedRect:self.contentView.frame cornerRadius:12];</div><div class="line">    UIBezierPath *wPath = [UIBezierPath bezierPathWithRect:self.view.bounds];</div><div class="line">    [wPath appendPath:cPath];</div><div class="line">    CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];</div><div class="line">    [self.view.layer addSublayer:maskLayer];</div><div class="line">    maskLayer.path = wPath.CGPath;</div><div class="line">    maskLayer.fillRule = kCAFillRuleEvenOdd;</div><div class="line">    self.view.backgroundColor = [UIColor clearColor];</div><div class="line">    self.contentView.backgroundColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:0.5];</div><div class="line">    maskLayer.fillColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.45].CGColor;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<video width="300" src="/images/dialog1.mov" controls></video>
+<video width="300" src="https://p1.meituan.net/dpnewvc/edebca77423a9164f4275979824fd3dc789621.mov" controls></video>
 
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说，比较麻烦的是如何实现跟系统基本一致的毛玻璃弹窗效果。开始试过几种方法都不理想，总是受到背景色的影响，不是偏暗就是毛玻璃效果不明显。最后就用挖洞的方式实现。总体来说效果还可以。本文的demo代码在<a href="https://github.com/shsoul/ShDialog" target="_blank" rel="external">这里</a>。</p>
 
@@ -739,7 +936,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-count">3</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -757,7 +954,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-count">4</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
