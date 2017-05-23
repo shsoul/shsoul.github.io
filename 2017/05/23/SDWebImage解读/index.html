@@ -84,35 +84,35 @@
 
 
 
-<meta name="description" content="SDWebImage解读概述SDWebImage库是iOS应用中常用的一个图片处理库，包括图片的下载和缓存等。非常好用。本文对其源码做了分析和总结。
+<meta name="description" content="概述SDWebImage库是iOS应用中常用的一个图片处理库，包括图片的下载和缓存等。非常好用。本文对其源码做了分析和总结。
 SDWebImage的结构
 
 整个架构是MVC架构。
 发起图片请求的是View层， 包括UIButton和UIImageView的Category。
 ImageManager是Controller层，请求的转发，是请求下载模块还是缓存模块。
-下载模块">
+下载模块（Downloader）">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SDWebImage解读">
 <meta property="og:url" content="http://yoursite.com/2017/05/23/SDWebImage解读/index.html">
 <meta property="og:site_name" content="shsoul'blog">
-<meta property="og:description" content="SDWebImage解读概述SDWebImage库是iOS应用中常用的一个图片处理库，包括图片的下载和缓存等。非常好用。本文对其源码做了分析和总结。
+<meta property="og:description" content="概述SDWebImage库是iOS应用中常用的一个图片处理库，包括图片的下载和缓存等。非常好用。本文对其源码做了分析和总结。
 SDWebImage的结构
 
 整个架构是MVC架构。
 发起图片请求的是View层， 包括UIButton和UIImageView的Category。
 ImageManager是Controller层，请求的转发，是请求下载模块还是缓存模块。
-下载模块">
+下载模块（Downloader）">
 <meta property="og:image" content="https://p1.meituan.net/dpnewvc/20aa73ab887e77461938f858bac37dc164266.png">
-<meta property="og:updated_time" content="2017-05-23T06:30:23.000Z">
+<meta property="og:updated_time" content="2017-05-23T06:40:38.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SDWebImage解读">
-<meta name="twitter:description" content="SDWebImage解读概述SDWebImage库是iOS应用中常用的一个图片处理库，包括图片的下载和缓存等。非常好用。本文对其源码做了分析和总结。
+<meta name="twitter:description" content="概述SDWebImage库是iOS应用中常用的一个图片处理库，包括图片的下载和缓存等。非常好用。本文对其源码做了分析和总结。
 SDWebImage的结构
 
 整个架构是MVC架构。
 发起图片请求的是View层， 包括UIButton和UIImageView的Category。
 ImageManager是Controller层，请求的转发，是请求下载模块还是缓存模块。
-下载模块">
+下载模块（Downloader）">
 <meta name="twitter:image" content="https://p1.meituan.net/dpnewvc/20aa73ab887e77461938f858bac37dc164266.png">
 
 
@@ -367,7 +367,7 @@ ImageManager是Controller层，请求的转发，是请求下载模块还是缓�
       
 
       
-        <h2 id="SDWebImage解读"><a href="#SDWebImage解读" class="headerlink" title="SDWebImage解读"></a>SDWebImage解读</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>SDWebImage库是iOS应用中常用的一个图片处理库，包括图片的下载和缓存等。非常好用。本文对其源码做了分析和总结。</p>
+        <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>SDWebImage库是iOS应用中常用的一个图片处理库，包括图片的下载和缓存等。非常好用。本文对其源码做了分析和总结。</p>
 <h3 id="SDWebImage的结构"><a href="#SDWebImage的结构" class="headerlink" title="SDWebImage的结构"></a>SDWebImage的结构</h3><p><img src="https://p1.meituan.net/dpnewvc/20aa73ab887e77461938f858bac37dc164266.png" alt="结构图"></p>
 <ol>
 <li>整个架构是MVC架构。<ul>
@@ -408,18 +408,9 @@ ImageManager是Controller层，请求的转发，是请求下载模块还是缓�
 <ul>
 <li>获取图片先从内存中找，如果没有找到则在磁盘中找，找到后先解码(SDWebImageDecoder)，然后放到内存中。</li>
 <li>缓存的清除：<ul>
-<li><ul>
-<li>(void)clearMemory;清内存缓存，在UIApplicationDidReceiveMemoryWarningNotification时主动调用。</li>
-</ul>
-</li>
-<li><ul>
-<li>(void)clearDisk; 清空磁盘缓存</li>
-</ul>
-</li>
-<li><ul>
-<li>(void)cleanDisk; 先清过期缓存，默认期限为一周，且如果设置最大缓存间时，清除最久的缓存，直到在size小于最大缓存空间的一半。</li>
-</ul>
-</li>
+<li>-(void)clearMemory;<br>  清内存缓存，在UIApplicationDidReceiveMemoryWarningNotification时主动调用。</li>
+<li>-(void)clearDisk; 清空磁盘缓存</li>
+<li>-(void)cleanDisk; 先清过期缓存，默认期限为一周，且如果设置最大缓存间时，清除最久的缓存，直到在size小于最大缓存空间的一半。</li>
 <li>需要注意的是，在UIApplicationWillTerminateNotification时会执行<code>- (void)cleanDisk</code>，在UIApplicationDidEnterBackgroundNotification时执行<code>- (void)backgroundCleanDisk</code>，两者的策略都是cleanDisk策略。</li>
 </ul>
 </li>
@@ -462,7 +453,7 @@ ImageManager是Controller层，请求的转发，是请求下载模块还是缓�
 <li>默认并发数为3。 这里的并发是指一次加3个请求到downloader队列中。·</li>
 <li>默认的option是SDWebImageLowPriority。</li>
 </ul>
-<h3 id="SDWebImage的Option"><a href="#SDWebImage的Option" class="headerlink" title="SDWebImage的Option"></a>SDWebImage的Option</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) &#123;</div><div class="line">    SDWebImageRetryFailed = 1 &lt;&lt; 0, //不加入url黑名单</div><div class="line"></div><div class="line">    /**</div><div class="line">     * By default, image downloads are started during UI interactions, this flags disable this feature,</div><div class="line">     * leading to delayed download on UIScrollView deceleration for instance.</div><div class="line">     */</div><div class="line">    SDWebImageLowPriority = 1 &lt;&lt; 1, //这个试过了，没起作用。在源代码中只是设置了Operation的低优先级。</div><div class="line">    SDWebImageCacheMemoryOnly = 1 &lt;&lt; 2, //只内存缓存</div><div class="line">    SDWebImageProgressiveDownload = 1 &lt;&lt; 3, //图片边下载边展示</div><div class="line">    SDWebImageRefreshCached = 1 &lt;&lt; 4, //重新下载</div><div class="line">    SDWebImageContinueInBackground = 1 &lt;&lt; 5, // 可以在后台下载</div><div class="line">    SDWebImageHandleCookies = 1 &lt;&lt; 6,</div><div class="line">    SDWebImageAllowInvalidSSLCertificates = 1 &lt;&lt; 7, //允许私有证书，用于测试</div><div class="line">    SDWebImageHighPriority = 1 &lt;&lt; 8, // 默认是先进先出的，这个可以提到前面</div><div class="line">    SDWebImageDelayPlaceholder = 1 &lt;&lt; 9, //延后放置占位图</div><div class="line">    SDWebImageTransformAnimatedImage = 1 &lt;&lt; 10, //设置转换图片，可以执行transformDownloadedImage的delegate。</div><div class="line">    SDWebImageAvoidAutoSetImage = 1 &lt;&lt; 11 //不自动设置图片</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<h3 id="SDWebImage的Options"><a href="#SDWebImage的Options" class="headerlink" title="SDWebImage的Options"></a>SDWebImage的Options</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) &#123;</div><div class="line">    SDWebImageRetryFailed = 1 &lt;&lt; 0, //不加入url黑名单</div><div class="line"></div><div class="line">    /**</div><div class="line">     * By default, image downloads are started during UI interactions, this flags disable this feature,</div><div class="line">     * leading to delayed download on UIScrollView deceleration for instance.</div><div class="line">     */</div><div class="line">    SDWebImageLowPriority = 1 &lt;&lt; 1, //这个试过了，没起作用。在源代码中只是设置了Operation的低优先级。</div><div class="line">    SDWebImageCacheMemoryOnly = 1 &lt;&lt; 2, //只内存缓存</div><div class="line">    SDWebImageProgressiveDownload = 1 &lt;&lt; 3, //图片边下载边展示</div><div class="line">    SDWebImageRefreshCached = 1 &lt;&lt; 4, //重新下载</div><div class="line">    SDWebImageContinueInBackground = 1 &lt;&lt; 5, // 可以在后台下载</div><div class="line">    SDWebImageHandleCookies = 1 &lt;&lt; 6,</div><div class="line">    SDWebImageAllowInvalidSSLCertificates = 1 &lt;&lt; 7, //允许私有证书，用于测试</div><div class="line">    SDWebImageHighPriority = 1 &lt;&lt; 8, // 默认是先进先出的，这个可以提到前面</div><div class="line">    SDWebImageDelayPlaceholder = 1 &lt;&lt; 9, //延后放置占位图</div><div class="line">    SDWebImageTransformAnimatedImage = 1 &lt;&lt; 10, //设置转换图片，可以执行transformDownloadedImage的delegate。</div><div class="line">    SDWebImageAvoidAutoSetImage = 1 &lt;&lt; 11 //不自动设置图片</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
       
     </div>
 
@@ -650,7 +641,7 @@ ImageManager是Controller层，请求的转发，是请求下载模块还是缓�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SDWebImage解读"><span class="nav-number">1.</span> <span class="nav-text">SDWebImage解读</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#概述"><span class="nav-number">1.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SDWebImage的结构"><span class="nav-number">1.2.</span> <span class="nav-text">SDWebImage的结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存模块（SDImageCache）"><span class="nav-number">1.3.</span> <span class="nav-text">缓存模块（SDImageCache）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-NSCache-做内存缓存"><span class="nav-number">1.3.1.</span> <span class="nav-text">1. NSCache 做内存缓存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-磁盘缓存"><span class="nav-number">1.3.2.</span> <span class="nav-text">2. 磁盘缓存</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#下载模块"><span class="nav-number">1.4.</span> <span class="nav-text">下载模块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-SDWebImageDownloader"><span class="nav-number">1.4.1.</span> <span class="nav-text">1. SDWebImageDownloader</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-下载线程-downloaderOperation"><span class="nav-number">1.4.2.</span> <span class="nav-text">2. 下载线程 - downloaderOperation</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#取消模块"><span class="nav-number">1.5.</span> <span class="nav-text">取消模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Manager模块"><span class="nav-number">1.6.</span> <span class="nav-text">Manager模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#prefetcher批量下载模块"><span class="nav-number">1.7.</span> <span class="nav-text">prefetcher批量下载模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SDWebImage的Option"><span class="nav-number">1.8.</span> <span class="nav-text">SDWebImage的Option</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SDWebImage的结构"><span class="nav-number">2.</span> <span class="nav-text">SDWebImage的结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存模块（SDImageCache）"><span class="nav-number">3.</span> <span class="nav-text">缓存模块（SDImageCache）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-NSCache-做内存缓存"><span class="nav-number">3.1.</span> <span class="nav-text">1. NSCache 做内存缓存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-磁盘缓存"><span class="nav-number">3.2.</span> <span class="nav-text">2. 磁盘缓存</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#下载模块"><span class="nav-number">4.</span> <span class="nav-text">下载模块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-SDWebImageDownloader"><span class="nav-number">4.1.</span> <span class="nav-text">1. SDWebImageDownloader</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-下载线程-downloaderOperation"><span class="nav-number">4.2.</span> <span class="nav-text">2. 下载线程 - downloaderOperation</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#取消模块"><span class="nav-number">5.</span> <span class="nav-text">取消模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Manager模块"><span class="nav-number">6.</span> <span class="nav-text">Manager模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#prefetcher批量下载模块"><span class="nav-number">7.</span> <span class="nav-text">prefetcher批量下载模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SDWebImage的Options"><span class="nav-number">8.</span> <span class="nav-text">SDWebImage的Options</span></a></li></ol></div>
             
 
           </div>
