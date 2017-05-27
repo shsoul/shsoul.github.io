@@ -103,7 +103,7 @@
 <meta property="og:image" content="https://p0.meituan.net/dpnewvc/e4c8706c48fdac66aff949f38b599a0015251.png">
 <meta property="og:image" content="https://p0.meituan.net/dpnewvc/c501389026c246735b894934a7cf436a10727.png">
 <meta property="og:image" content="https://p0.meituan.net/dpnewvc/e4c8706c48fdac66aff949f38b599a0015251.png">
-<meta property="og:updated_time" content="2017-05-27T07:27:23.000Z">
+<meta property="og:updated_time" content="2017-05-27T08:53:05.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如何实现一套iOS-router">
 <meta name="twitter:description" content="router是什么？简单的说，router就是用url跟一些操作绑定，我们可以通过我们设定的url，执行设定的操作，如打开某个页面。看图：
@@ -376,7 +376,7 @@
 <li>方便和其他app的通信，方便处理web跳转到app的逻辑。</li>
 </ol>
 <p>举个例子：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">//使用router前，这里必须在Viewcontroller调用。</div><div class="line"></div><div class="line">UIViewController *main = [[UIViewController alloc] initWithxxx:(id)xxx];</div><div class="line">[self.navigationController pushViewController:main animated:YES];</div><div class="line"></div><div class="line">使用router后，这里可以任何地方调用。</div><div class="line"></div><div class="line">Router.router.build(&quot;/main&quot;).withAnimated(YES).withObject(@&quot;key&quot;, value).navigate();</div></pre></td></tr></table></figure>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//使用router前，这里必须在Viewcontroller调用。</span></div><div class="line"></div><div class="line"><span class="built_in">UIViewController</span> *main = [[<span class="built_in">UIViewController</span> alloc] initWithxxx:(<span class="keyword">id</span>)xxx];</div><div class="line">[<span class="keyword">self</span>.navigationController pushViewController:main animated:<span class="literal">YES</span>];</div><div class="line"></div><div class="line">使用router后，这里可以任何地方调用。</div><div class="line"></div><div class="line">Router.router.build(<span class="string">"/main"</span>).withAnimated(<span class="literal">YES</span>).withObject(<span class="string">@"key"</span>, value).navigate();</div></pre></td></tr></table></figure>
 <h3 id="如何实现router"><a href="#如何实现router" class="headerlink" title="如何实现router"></a>如何实现router</h3><ol>
 <li><p>明确我们需要做什么。</p>
 <ul>
@@ -409,7 +409,7 @@
 <li>在register模块上注册我们的vc。有拦截器加拦截器。</li>
 <li>最后调用router相应的方法传参和跳转到我们定义的vc吧。为了更好的使用体验(参数的不确定)，用builder模式好一点。</li>
 </ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Router.router.build(&quot;/main&quot;).withAnimated(YES).withObject(@&quot;key&quot;, value).navigate();</div><div class="line"></div><div class="line">Router.router.build(&quot;/login&quot;).withAnimated(YES).withObject(@&quot;key&quot;, value).present();</div></pre></td></tr></table></figure>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Router.router.build(<span class="string">"/main"</span>).withAnimated(<span class="literal">YES</span>).withObject(<span class="string">@"key"</span>, value).navigate();</div><div class="line"></div><div class="line">Router.router.build(<span class="string">"/login"</span>).withAnimated(<span class="literal">YES</span>).withObject(<span class="string">@"key"</span>, value).present();</div></pre></td></tr></table></figure>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p> 以上是我对router的一些想法，也按照这个想法实现了一套router（KLMRouter）。了解更多请移步<a href="https://github.com/shsoul/KLMRouter" target="_blank" rel="external">github</a>。 再也不用关注路由的关系了，只需关注本身页面的构造。达到解耦的效果。特别在嵌套很深的界面中，路由可直接在操作中进行，再也不用回调到外面的controller进行跳转。总的来说，效果不错。</p>
 <p> <img src="https://p0.meituan.net/dpnewvc/e4c8706c48fdac66aff949f38b599a0015251.png" alt=""></p>
 
